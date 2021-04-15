@@ -1,0 +1,16 @@
+{
+  "name": "transcode-video",
+  "version": "1.0.0",
+  "description": "Transcode Video Function",
+  "main": "index.js",
+  "scripts": {
+    "test": "run-local-lambda --file index.js --event tests/event.json"
+  },
+  "dependencies": {
+    "aws-sdk": "latest",
+    "run-local-lambda": "^1.1.1",
+    "save-dev": "0.0.1-security"
+  },
+  "author": "Peter Sbarski",
+  "license": "BSD-2-Clause"
+}
