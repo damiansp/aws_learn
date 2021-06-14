@@ -1,0 +1,27 @@
+-Register Data with AWS Glue Data Catalog-
+
+import awswrangler as wr
+
+
+# Create DB in AWS Glue Data Catalogue
+wr.catalog.create_database(name='...')
+
+# Create .csv table (metadata only) in the catalogue
+wr.catalog.create_csv_table(table=..., column_types=..., ...)
+
+# Create Athena Bucket
+wr.athena.create_athena_bucket()
+
+# Query
+df = wr.athena.read_sql_query(sql='SELECT * ...', database=...)
+
+
+
+First Lab:
+- Navigate to SageMaker Studio
+- Open System Terminal
+- Copy content into working directory
+  - (e.g.) aws s3 cp --recursive s3://dlai-practical-data-science/labs/c1w1-474798/ ./
+- Open Notebook (.ipynb) file from left Dir Structure pane
+
+

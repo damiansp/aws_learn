@@ -5,6 +5,11 @@
 .DS_Store
 
 
+# Jupyter
+#------------------------
+.ipynb_checkpoints
+
+
 # node
 #------------------------
 node_modules
