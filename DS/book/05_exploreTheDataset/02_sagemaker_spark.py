@@ -1,5 +1,6 @@
 from pydeequ.analyzers import *
 from pydeequ.checks import *
+from pydeequ.repository import *
 from pydeequ.verification import *
 from sagemaker.spark.processing import PySparkProcessor
 
@@ -46,3 +47,25 @@ verification_res = (
         .isComplete('marketplace')
         .isContainedIn('marketplae', ['US', 'UK', 'DE', 'JP', 'FR']))
     .run())
+
+metrics_file = FileSystemMetricsRepository.helper_metrics_file(
+    spark, 'metrics.json')
+repository = FileSystemMetricsRepository(spark, metrics_file)
+result_key = ResultKey(spark, ResultKey.current_milli_time())
+analysis_res = (
+    Analysis.Runner(spark)
+    .onData(dataset)
+    .addAnalyzer(Size())
+    .addAnalyzer(Completeness('review_id'))
+    .addAnalyzer(ApproxCountDistinct('review_id'))
+    .addAnalyzer(Mean('star_rating'))
+    .addAnalyzer(Compliance('top_star_rating', 'star_rating >= 4.0'))
+    .addAnalyzer(Correlation('total_votes', 'star_rating'))
+    .addAnalyzer(Correlation('total_votes', 'helpful_votes'))
+    .useRepository(repository)
+    .run())
+df_res_metrics_repository = (
+    repository.load()
+    .before(ResultKey.current_milli_time())
+    .forAnalyzers([ApproxCountDistinct('review_id')])
+    .getSuccessMetricsAsDataFrame())
