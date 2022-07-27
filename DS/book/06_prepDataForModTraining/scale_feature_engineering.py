@@ -29,3 +29,13 @@ processor.run(
         '--max-seq-lenth', str(max_seq_len)],
     logs=True,
     wait=False)
+
+output_config = processing_job_description['ProcessingOutputConfig']
+for output in output_config['Outputs']:
+    if output['OutputName'] == 'bert-train':
+        processed_train_data_s3_uri = output['S3Output']['S3Uri']
+    elif output['OutputName'] == 'bert-validation':
+        processed_validation_data_s3_uri = output['S3Output']['S3Uri']
+    elif output['OutputName'] == 'bert-test':
+        processed_test_data_s3_uri = output['S3Output']['S3Uri']
+
