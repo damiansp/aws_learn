@@ -1,0 +1,15 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Resources:
+  WebInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t3.micro
+      ImageId: ami-0123456
+      KeyName: server_key
+      SecurityGroupIds:
+      - sg-143224
+      SubneteId: subnet-14322
+      Tags:
+      -
+        Key: Name
+        Value: Web_Server
