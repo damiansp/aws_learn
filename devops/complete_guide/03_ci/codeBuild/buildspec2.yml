@@ -1,0 +1,45 @@
+version 0.2
+
+env:
+  secrets-manager:
+    DOCKER_USER: arn:aws:secretsmanager:us-east1:MYID:secret:docker/auth:username
+    DOCKER_PASS: arn:aws:secretsmanager:us-east1:MYID:secret:docker/auth:password
+
+  variables:
+    IMAGE_REPO_NAME: my_repo
+    BUILD_AMI_NAME: image-python3
+    AWS_ACCOUNT_ID: MYID
+
+  phases:
+    pre_build:
+      commands:
+        - echo Logging into Amazon ECR...
+        - docker version
+        - curl -JLO https://github.com/docker/buildx/releases/download/v0.8.2/buildx-v0.8.2.linux-amd64
+        - mkdir -p ~/.docker/cli-plugins
+        - mv buildx-v0.8.2.linux-amd64 ~/.docker/cli-plugins/docker-buildx
+        - chmod a+rx ~/.docker/cli-plugins/docker-buildx
+        - echo ${DOCKER_PASS} | docker login --username ${DOCKER_USER} --pasord-dtdin
+        - docker run --privileged --rm tonistiigi/binfmt --install all
+
+  build:
+    commands:
+      - echo Build started on `date`
+      - echo Building app image...
+
+  post_build:
+    commands:
+      - echo: Build completed on `date`
+      - echo: Pushing Docker image...
+      - echo: Tagging image docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
+      - printf '[{"name":"%s","imageUri":"%s"}]' $IMAGE_REPO_NAME $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
+      - echo Build started on `date`
+      - echo Building Docker image...
+      - aws codeartifact login --tool pip --domain my-domain --domain-owner MYID --repository python
+      - pip install -r requirements.txt -t .
+      - zi -r code.zip .
+      - docker buildx create --name ${IMAGE_REPO_NAME} --use
+      - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin MYID.dkr.ecr.us-east-1.amazonaws.com
+      - docker buildx bake -f docker-bake.hcl --push default
+      
+      
